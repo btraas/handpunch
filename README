@@ -1,0 +1,106 @@
+################################################################################
+handpunch try to implement some basic functionality for HandKey and HandPunch
+ devices agree to the protocol specification binded by the manufacturer.
+Copyright (C) 2011 "liandrosg @ gmail.com"
+
+This file is part of handpunch.
+
+handpunch is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+handpunch is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with handpunch.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+
+handpunch try to implement some basic functionality for HandKey and HandPunch
+ devices agree to the protocol specification binded by the manufacturer in
+ http://www.handpunch.com/manuals/Hand_Reader_Technical_Manual_2.7.pdf .
+
+
+COMPATIBLES DEVICE 
+------------------
+ I have tested handpunch with HandPunch 3000, and Hand Key2000 units, and i 
+  think it is compatible with units Handpunch 1000, and Handpunch 2000 agree
+  the manufacturer specification.
+ For units HandPunch 4000, this softwre requires some modifications.
+
+BUILD
+-----
+  Uncompress and compile using make
+   $ tar -zxf handpunch.x.tgz
+   $ cd handpunch-*
+   $ make
+
+BASIC USAGE
+-----------
+ * Use the unit for staff enrollment.
+ * Howto specify connection type, and unit ID.
+  _You will need specify the connection type with -u argumment.
+    For serial connection in port /dev/ttyS0, using 9600 bauds, you can use:
+     $ handpunch -u /dev/ttyS0:9600 
+
+    For ethernet connection in 192.168.1.10, port 3001, you can use:
+     $ handpunch -u 192.168.1.10:3001
+    Bauds, and port are optionall, and default value are 9600, and 3001 respectively.
+
+  _You will need specify the unit ID with -n argumment.
+    If you unknown the unit ID, you can scan some numbers with -s action argument:
+     $ handpunch -u 192.168.1.10:3001 -s 
+     > Unit number found: 1. Now try use me whith:   -n 1
+
+ * Then do some basic queries to the unit.
+    Query reader info :
+     $ handpunch -u 192.168.1.10:3001 -n1 -qi
+    Query unit time (view format time in FAQ):
+     $ handpunch -u 192.168.1.10:3001 -n1 -qt
+    Download user attendance transactions(view record format in FAQ).
+     $ handpunch -u 192.168.1.10:3001 -n1 -di
+
+ * Cron unit time updates
+     $ handpunch -u 192.168.1.10:3001 -n1 -ct
+
+ * Cron fingerprints backup
+     $ handpunch -u 192.168.1.10:3001 -n1 -ql > backup
+
+   
+
+FAQ
+---
+ 1) Why -mc option for avoid CRC check on responses?
+ 2) Why -mw option for avoid wakeup tries before operations?
+ 3) What is the used format time?
+ 4) What is the record format when download user attendance transactions?
+
+ 1) Why -mc option for avoid CRC check on responses?
+    -----------------------------------------------
+    In my experience, a query for bank memory on HandkeyII unit, return crc 
+     error, with valid data. Yes.. a problem, but this option existis because
+     the return data are ok.
+    Query for enrolled users, uses this bank memory query.
+
+
+ 2) Why -mw option for avoid wakeup tries before operations?
+    -------------------------------------------------------
+    HandPunch units normally remain in a resting state. In this state do not
+     respond to any command except the command for awakening. 
+    Awake command is sent before each operation with the unit except that this
+     option is enabled.
+
+ 3) What is the used format time?
+    ----------------------------
+    Times are specified in format:
+     YYYY.MM.DD HH.MM.SS
+
+ 4) What is the record format when download user attendance transactions?
+    --------------------------------------------------------------------
+    Format:
+     YYYY.MM.DD HH.MM.SS IIIIIIIIII
+    Where IIIIIIIIII user ID with leading zeros.
